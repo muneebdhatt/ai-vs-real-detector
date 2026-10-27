@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI vs Real Image Detector</title>
+<meta name="description" content="Deep learning project: detect whether an image is real or AI-generated, running fully in your browser.">
+<style>
+  :root { --bg:#0f1115; --card:#181b22; --line:#2a2f3a; --text:#e8eaf0; --muted:#9aa3b2; --accent:#6ea8fe; --good:#4ade80; --bad:#f87171; --warn:#fbbf24; }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background:var(--bg); color:var(--text); line-height:1.55; }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 24px 16px 64px; }
+  header h1 { font-size: 1.9rem; margin: 8px 0 4px; }
+  header p { color: var(--muted); margin: 0 0 8px; }
+  section { background: var(--card); border:1px solid var(--line); border-radius:14px; padding:20px; margin-top:18px; }
+  h2 { font-size:1.15rem; margin:0 0 12px; }
+  .drop { border:2px dashed var(--line); border-radius:12px; padding:28px; text-align:center; cursor:pointer; color:var(--muted); transition: border-color .15s; }
+  .drop:hover, .drop.over { border-color: var(--accent); color: var(--text); }
+  .drop input { display:none; }
+  #preview { max-width:100%; max-height:320px; border-radius:10px; display:none; margin:16px auto 0; }
+  #result { display:none; margin-top:16px; }
+  .verdict { font-size:1.5rem; font-weight:700; }
+  .verdict.real { color:var(--good); } .verdict.fake { color:var(--bad); } .verdict.unsure { color:var(--warn); }
+  .bar { height:12px; background:#252a35; border-radius:6px; overflow:hidden; margin:8px 0; }
+  .bar > div { height:100%; background: var(--accent); width:0; transition: width .3s; }
+  .small { color:var(--muted); font-size:.88rem; }
+  .status { color:var(--muted); font-size:.9rem; margin-top:10px; }
+  .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap:10px; }
+  a.link { display:block; padding:12px 14px; border:1px solid var(--line); border-radius:10px; color:var(--text); text-decoration:none; background:#12151b; }
+  a.link:hover { border-color: var(--accent); }
+  a.link span { display:block; color:var(--muted); font-size:.82rem; }
+  table { width:100%; border-collapse: collapse; font-size:.92rem; }
+  th, td { text-align:left; padding:8px 6px; border-bottom:1px solid var(--line); }
+  th { color: var(--muted); font-weight:600; }
+  code { background:#12151b; padding:2px 6px; border-radius:6px; font-size:.9em; }
+  ul { padding-left: 20px; margin: 6px 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>AI vs Real Image Detector</h1>
+  <p>A deep learning project that classifies an image as <b>real</b> or <b>AI-generated</b>. The model runs entirely in your browser; your image is never uploaded.</p>
+</header>
+
+<section id="demo">
+  <h2>Try it</h2>
+  <label class="drop" id="drop">
+    <input type="file" id="file" accept="image/*">
+    <div>Click to choose an image, or drag and drop one here</div>
+  </label>
+  <img id="preview" alt="Selected image preview">
+  <div id="status" class="status">Loading model…</div>
+  <div id="result">
+    <div id="verdict" class="verdict"></div>
+    <div class="bar"><div id="barfill"></div></div>
+    <div id="conf" class="small"></div>
+    <p class="small" id="note"></p>
+  </div>
+  <p class="small">Educational demo. It was trained on small 32×32 images from one generator, so it can be wrong on images from newer generators and on high-resolution photos. See the results table below.</p>
+</section>
+
+<section id="links">
+  <h2>Project links</h2>
+  <div class="grid" id="linkgrid"></div>
+</section>
+
+<section id="dataset">
+  <h2>Dataset</h2>
+  <ul>
+    <li><b>CIFAKE</b>: 60,000 real images (from CIFAR-10) and 60,000 AI-generated images (Stable Diffusion), 32×32 pixels. Train set 100,000, test set 20,000.</li>
+    <li><b>Real-world test set</b> (self-collected): real photos and images from free AI generators, used only for testing, never for training.</li>
+    <li>Dataset link: <a id="datasetlink" style="color:var(--accent)" target="_blank" rel="noopener">see links above</a></li>
+  </ul>
+</section>
+
+<section id="model">
+  <h2>Model and code</h2>
+  <ul>
+    <li><b>Baseline:</b> custom CNN (4 conv blocks, batch norm, dropout).</li>
+    <li><b>Main model:</b> MobileNetV2 pretrained on ImageNet, head trained first, then the top 30 layers fine-tuned at a learning rate of 1e-5.</li>
+    <li><b>Input:</b> 128×128 RGB. <b>Output:</b> probability the image is real (sigmoid). Threshold 0.5.</li>
+    <li><b>Deployment:</b> exported to TensorFlow.js and run in the browser.</li>
+    <li>Source code, notebooks and weights are in the GitHub repository.</li>
+  </ul>
+</section>
+
+<section id="results">
+  <h2>Results</h2>
+  <table>
+    <thead><tr><th>Model</th><th>CIFAKE test accuracy</th><th>Real-world test accuracy</th></tr></thead>
+    <tbody id="resultsbody"><tr><td colspan="3" class="small">Fill in from <code>report/results_*.json</code> in <code>web/config.js</code>.</td></tr></tbody>
+  </table>
+  <p class="small">The gap between the two columns is the generalization gap discussed in the report.</p>
+</section>
+
+</div>
+
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.22.0/dist/tf.min.js"></script>
+<script>
+(function () {
+  const C = window.PROJECT_CONFIG;
+  const $ = (id) => document.getElementById(id);
+
+  // links
+  const grid = $("linkgrid");
+  C.links.forEach((l) => {
+    const a = document.createElement("a");
+    a.className = "link"; a.href = l.url; a.target = "_blank"; a.rel = "noopener";
+    a.innerHTML = l.label + "<span>" + l.hint + "</span>";
+    grid.appendChild(a);
+  });
+  const ds = C.links.find((l) => l.id === "dataset");
+  if (ds) $("datasetlink").href = ds.url;
+
+  // results table
+  if (C.results && C.results.length) {
+    $("resultsbody").innerHTML = C.results.map((r) =>
+      "<tr><td>" + r.model + "</td><td>" + r.cifake + "</td><td>" + r.realworld + "</td></tr>").join("");
+  }
+
+  // model
+  let model = null;
+  tf.loadLayersModel(C.modelUrl).then((m) => {
+    model = m;
+    // warm up
+    tf.tidy(() => m.predict(tf.zeros([1, C.imgSize, C.imgSize, 3])).dataSync());
+    $("status").textContent = "Model ready. Choose an image.";
+  }).catch((e) => {
+    console.error(e);
+    $("status").textContent = "Could not load the model (" + C.modelUrl + "). Check that web/model/model.json exists.";
+  });
+
+  function show(p) {
+    const real = p >= 0.5;
+    const conf = real ? p : 1 - p;
+    const v = $("verdict");
+    let cls = real ? "real" : "fake", text = real ? "Likely REAL" : "Likely AI-GENERATED";
+    if (conf < C.uncertainBelow) { cls = "unsure"; text = "Uncertain (" + (real ? "leaning real" : "leaning AI") + ")"; }
+    v.className = "verdict " + cls; v.textContent = text;
+    $("barfill").style.width = (conf * 100).toFixed(1) + "%";
+    $("conf").textContent = "Confidence: " + (conf * 100).toFixed(1) + "%   (P(real) = " + p.toFixed(3) + ")";
+    $("note").textContent = conf < C.uncertainBelow ? "The model is not confident about this image." : "";
+    $("result").style.display = "block";
+  }
+
+  function run(file) {
+    if (!file || !model) { if (!model) $("status").textContent = "Model is still loading…"; return; }
+    const url = URL.createObjectURL(file);
+    const img = $("preview");
+    img.onload = () => {
+      const p = tf.tidy(() => {
+        const t = tf.browser.fromPixels(img).resizeBilinear([C.imgSize, C.imgSize], false, true).toFloat().expandDims(0);
+        return model.predict(t).dataSync()[0];
+      });
+      show(p);
+      $("status").textContent = "";
+      URL.revokeObjectURL(url);
+    };
+    img.src = url; img.style.display = "block";
+  }
+
+  const drop = $("drop");
+  $("file").addEventListener("change", (e) => run(e.target.files[0]));
+  ["dragenter", "dragover"].forEach((ev) => drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.add("over"); }));
+  ["dragleave", "drop"].forEach((ev) => drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.remove("over"); }));
+  drop.addEventListener("drop", (e) => run(e.dataTransfer.files[0]));
+})();
+</script>
+</body>
+</html>

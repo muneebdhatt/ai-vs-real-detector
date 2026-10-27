@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+data/cifake/
+kaggle.json
+.vercel
+.DS_Store
+# Keep model weights and web/model in git (each file must stay under 100 MB)

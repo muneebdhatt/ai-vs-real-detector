@@ -1,0 +1,3 @@
+filename,label,source
+# label is "real" or "ai". For ai images write the generator name; for real photos write where the photo came from.
+# Delete these comment lines before submitting.
