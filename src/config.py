@@ -21,5 +21,14 @@ SEED = 42
 # Model output is P(REAL). Keep this consistent in predict.py and the web app.
 CLASS_NAMES = ["FAKE", "REAL"]
 
-BASELINE_PATH = os.path.join(MODELS_DIR, "baseline_cnn.keras")
-MAIN_PATH = os.path.join(MODELS_DIR, "mobilenetv2.keras")
+# Training data folder (train/REAL, train/FAKE). Defaults to DATA_DIR (CIFAKE).
+# Set TRAIN_DIR to the mixed dataset built by src/build_mixed_data.py to train on it,
+# while evaluation keeps using DATA_DIR (the original CIFAKE test set).
+TRAIN_DIR = os.environ.get("TRAIN_DIR", DATA_DIR)
+
+# MODEL_TAG keeps different training runs apart, e.g. MODEL_TAG=mixed saves models/mobilenetv2_mixed.keras
+TAG = os.environ.get("MODEL_TAG", "")
+SUFFIX = f"_{TAG}" if TAG else ""
+
+BASELINE_PATH = os.path.join(MODELS_DIR, f"baseline_cnn{SUFFIX}.keras")
+MAIN_PATH = os.path.join(MODELS_DIR, f"mobilenetv2{SUFFIX}.keras")

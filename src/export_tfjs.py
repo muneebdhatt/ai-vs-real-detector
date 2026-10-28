@@ -17,9 +17,9 @@ import numpy as np
 import tensorflow as tf
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from config import MAIN_PATH, MODELS_DIR, WEB_MODEL_DIR, IMG_SIZE
+from config import MAIN_PATH, MODELS_DIR, WEB_MODEL_DIR, IMG_SIZE, SUFFIX
 
-INFERENCE_PATH = os.path.join(MODELS_DIR, "mobilenetv2_inference.h5")
+INFERENCE_PATH = os.path.join(MODELS_DIR, f"mobilenetv2_inference{SUFFIX}.h5")
 
 
 def build_inference_model():

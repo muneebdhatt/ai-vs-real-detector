@@ -6,7 +6,7 @@ window.PROJECT_CONFIG = {
   uncertainBelow: 0.65,   // show "Uncertain" when confidence is below this
 
   links: [
-    { id: "github",  label: "GitHub repository",   hint: "Code, notebooks, model weights",  url: "PUT_GITHUB_REPO_URL_HERE" },
+    { id: "github",  label: "GitHub repository",   hint: "Code, notebooks, model weights",  url: "https://github.com/muneebdhatt/ai-vs-real-detector" },
     { id: "dataset", label: "Dataset (CIFAKE)",    hint: "Kaggle dataset",                  url: "https://www.kaggle.com/datasets/birdy654/cifake-real-and-ai-generated-synthetic-images" },
     { id: "report",  label: "Project report",      hint: "Full article / report",           url: "PUT_REPORT_LINK_HERE" },
     { id: "slides",  label: "Presentation (PPT)",  hint: "Slides",                          url: "PUT_PRESENTATION_LINK_HERE" },
@@ -16,7 +16,8 @@ window.PROJECT_CONFIG = {
 
   // Fill from report/results_baseline.json and report/results_mobilenet.json
   results: [
-    // { model: "Custom CNN (baseline)", cifake: "00.0%", realworld: "00.0%" },
-    // { model: "MobileNetV2 (transfer learning)", cifake: "00.0%", realworld: "00.0%" }
+    { model: "Custom CNN (CIFAKE only)",            cifake: "95.3%", realworld: "50.0%" },
+    { model: "MobileNetV2 (CIFAKE only)",           cifake: "94.7%", realworld: "50.0%" },
+    { model: "MobileNetV2 (mixed data, deployed)",  cifake: "90.4%", realworld: "86.3%" }
   ]
 };

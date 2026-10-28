@@ -4,12 +4,15 @@ Usage:
     python src/train.py --model baseline --epochs 15
     python src/train.py --model mobilenet --epochs 5 --finetune-epochs 8
     python src/train.py --model mobilenet --epochs 1 --finetune-epochs 1 --max-batches 5   # smoke test
+
+For the mixed dataset (see build_mixed_data.py):
+    TRAIN_DIR=data/mixed MODEL_TAG=mixed python src/train.py --model mobilenet --epochs 8 --finetune-epochs 10 --robust-aug
 """
 import argparse
 import json
 import os
 import tensorflow as tf
-from config import MODELS_DIR, REPORT_DIR, BASELINE_PATH, MAIN_PATH, SEED
+from config import MODELS_DIR, REPORT_DIR, BASELINE_PATH, MAIN_PATH, SEED, SUFFIX
 from data import get_train_val
 from models import build_baseline, build_mobilenet, unfreeze_top
 
@@ -47,13 +50,14 @@ def main():
     p.add_argument("--model", choices=["baseline", "mobilenet"], required=True)
     p.add_argument("--epochs", type=int, default=10)
     p.add_argument("--finetune-epochs", type=int, default=8)
+    p.add_argument("--robust-aug", action="store_true", help="random blur + JPEG on training images")
     p.add_argument("--max-batches", type=int, default=0, help="limit batches per epoch (smoke tests)")
     args = p.parse_args()
 
     tf.keras.utils.set_random_seed(SEED)
     os.makedirs(MODELS_DIR, exist_ok=True)
     os.makedirs(REPORT_DIR, exist_ok=True)
-    train, val = get_train_val()
+    train, val = get_train_val(robust=args.robust_aug)
     kw = {}
     if args.max_batches:
         train, val = train.take(args.max_batches), val.take(args.max_batches)
@@ -81,7 +85,7 @@ def main():
 
     if not os.path.exists(out_path):   # e.g. very short smoke runs
         model.save(out_path)
-    with open(os.path.join(REPORT_DIR, f"history_{args.model}.json"), "w") as f:
+    with open(os.path.join(REPORT_DIR, f"history_{args.model}{SUFFIX}.json"), "w") as f:
         json.dump(history, f, indent=2)
     print("Saved", out_path)
 

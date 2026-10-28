@@ -1,0 +1,39 @@
+{
+  "cifake_test": {
+    "n": 20000,
+    "accuracy": 0.95345,
+    "precision": 0.9671371175440404,
+    "recall": 0.9388,
+    "f1": 0.9527579032830974,
+    "confusion_matrix": [
+      [
+        9681,
+        319
+      ],
+      [
+        612,
+        9388
+      ]
+    ],
+    "roc_auc": 0.990978825
+  },
+  "realworld_test": {
+    "n": 300,
+    "accuracy": 0.5,
+    "precision": 0.0,
+    "recall": 0.0,
+    "f1": 0.0,
+    "confusion_matrix": [
+      [
+        150,
+        0
+      ],
+      [
+        150,
+        0
+      ]
+    ],
+    "roc_auc": 0.3072222222222222
+  },
+  "generalization_gap_accuracy": 0.45345
+}

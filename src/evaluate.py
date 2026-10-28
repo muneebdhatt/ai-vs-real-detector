@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 import tensorflow as tf
 from sklearn.metrics import (accuracy_score, precision_score, recall_score, f1_score,
                              roc_auc_score, confusion_matrix, roc_curve)
-from config import BASELINE_PATH, MAIN_PATH, REPORT_DIR, REALWORLD_DIR, CLASS_NAMES
+from config import BASELINE_PATH, MAIN_PATH, REPORT_DIR, REALWORLD_DIR, CLASS_NAMES, SUFFIX
 from data import get_test, get_realworld
 
 PATHS = {"baseline": BASELINE_PATH, "mobilenet": MAIN_PATH}
@@ -97,11 +97,11 @@ def main():
         y_true, y_prob = predict_all(model, ds)
         r = metrics(y_true, y_prob)
         results[name] = r
-        plot_cm(r["confusion_matrix"], f"{args.model} - {name}",
-                os.path.join(REPORT_DIR, f"cm_{args.model}_{name}.png"))
+        plot_cm(r["confusion_matrix"], f"{args.model}{SUFFIX} - {name}",
+                os.path.join(REPORT_DIR, f"cm_{args.model}{SUFFIX}_{name}.png"))
         if r["roc_auc"] is not None:
-            plot_roc(y_true, y_prob, f"{args.model} - {name}",
-                     os.path.join(REPORT_DIR, f"roc_{args.model}_{name}.png"))
+            plot_roc(y_true, y_prob, f"{args.model}{SUFFIX} - {name}",
+                     os.path.join(REPORT_DIR, f"roc_{args.model}{SUFFIX}_{name}.png"))
         print(name, json.dumps({k: v for k, v in r.items() if k != "confusion_matrix"}))
 
     if "realworld_test" in results:
@@ -109,7 +109,7 @@ def main():
         results["generalization_gap_accuracy"] = float(gap)
         print(f"Generalization gap (CIFAKE acc - real-world acc): {gap:.3f}")
 
-    with open(os.path.join(REPORT_DIR, f"results_{args.model}.json"), "w") as f:
+    with open(os.path.join(REPORT_DIR, f"results_{args.model}{SUFFIX}.json"), "w") as f:
         json.dump(results, f, indent=2)
 
 
